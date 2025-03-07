@@ -15,5 +15,15 @@
         /// Gets the end boundary of the interval.
         /// </summary>
         T? End { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the start boundary is included in the interval.
+        /// </summary>
+        bool StartInclusive { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the end boundary is included in the interval.
+        /// </summary>
+        bool EndInclusive { get; }
     }
 }
