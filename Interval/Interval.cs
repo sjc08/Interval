@@ -18,8 +18,14 @@
         /// <exception cref="ArgumentException">Thrown if <paramref name="start"/> is greater than <paramref name="end"/>.</exception>
         public Interval(T? start, T? end, bool startInclusive = true, bool endInclusive = false)
         {
-            if (start.HasValue && end.HasValue && start.Value.CompareTo(end.Value) > 0)
-                throw new ArgumentException($"{nameof(start)} must be less than or equal to {nameof(end)}");
+            if (start.HasValue && end.HasValue)
+            {
+                var cmp = start.Value.CompareTo(end.Value);
+                if (cmp > 0)
+                    throw new ArgumentException($"{nameof(start)} must be less than or equal to {nameof(end)}");
+                if (cmp == 0 && !(startInclusive && endInclusive))
+                    throw new ArgumentException($"When {nameof(start)} is equal to {nameof(end)}, both {nameof(startInclusive)} and {nameof(endInclusive)} must be true");
+            }
 
             Start = start;
             End = end;
@@ -66,13 +72,19 @@
         {
             string l = Start?.ToString() ?? "−∞";
             string r = End?.ToString() ?? "+∞";
-            char lb = Start.HasValue && StartInclusive ? '[' : '(';
-            char rb = End.HasValue && EndInclusive ? ']' : ')';
+            char lb = StartInclusive ? '[' : '(';
+            char rb = EndInclusive ? ']' : ')';
             return $"{lb}{l}, {r}{rb}";
         }
 
+        /// <summary>
+        /// Compares two <see cref="Interval{T}"/> objects.
+        /// </summary>
         public static bool operator ==(Interval<T> left, Interval<T> right) => Equals(left, right);
 
+        /// <summary>
+        /// Compares two <see cref="Interval{T}"/> objects.
+        /// </summary>
         public static bool operator !=(Interval<T> left, Interval<T> right) => !Equals(left, right);
     }
 }
