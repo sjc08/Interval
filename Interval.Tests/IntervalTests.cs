@@ -14,6 +14,10 @@
             Assert.IsTrue(new Interval<int>(0, 1) == new Interval<int>(0, 1));
             Assert.IsFalse(new Interval<int>(null, null, false, false) == new Interval<int>(null, null, true, true)); // debatable
 
+            Assert.AreEqual(0, new Interval<int>(0, 1).CompareTo(0));
+            Assert.AreEqual(-1, new Interval<int>(0, 1).CompareTo(1));
+            Assert.AreEqual(0, new Interval<int>(0, null).CompareTo(1));
+
             Assert.IsTrue(new Interval<int>(0, 1).Contains(0));
             Assert.IsFalse(new Interval<int>(0, 1, startInclusive: false).Contains(0));
             Assert.IsFalse(new Interval<int>(0, 1).Contains(1));
