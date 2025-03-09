@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <Authors>AlexSJC</Authors>
     <Description>Handle intervals easily.</Description>
     <Copyright>Copyright © $(Authors) $([System.DateTime]::Now.Year)</Copyright>

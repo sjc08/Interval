@@ -6,9 +6,9 @@
     public static class IntervalExtensions
     {
         /// <summary>
-        /// Determines whether the <see cref="IInterval{T}"/> precedes, follows, or contains a specific value.
+        /// Compares the <see cref="IInterval{T}"/> with a specific value.
         /// </summary>
-        /// <returns>A <see langword="bool"/> indicating the relationship between two objects.</returns>
+        /// <returns>An <see langword="int"/> indicating whether <paramref name="interval"/> precedes, follows, or contains <paramref name="value"/>.</returns>
         public static int CompareTo<T>(this IInterval<T> interval, T value) where T : struct, IComparable
         {
             if (interval.Start.HasValue)
@@ -30,7 +30,7 @@
         /// Determines whether the <see cref="IInterval{T}"/> contains a specific value.
         /// </summary>
         /// <returns><see langword="true"/> if <paramref name="value"/> is in the <paramref name="interval"/>; otherwise, <see langword="false"/>.</returns>
-        public static bool Contains<T>(this IInterval<T> interval, T value) where T : struct, IComparable 
+        public static bool Contains<T>(this IInterval<T> interval, T value) where T : struct, IComparable
             => interval.CompareTo(value) == 0;
     }
 }
