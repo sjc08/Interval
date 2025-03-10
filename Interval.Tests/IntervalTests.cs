@@ -27,6 +27,7 @@
             Assert.AreEqual("[0, 1)", new Interval<int>(0, 1).ToString());
             Assert.AreEqual("(0, 1)", new Interval<int>(0, 1, startInclusive: false).ToString());
             Assert.AreEqual("[0, 1]", new Interval<int>(0, 1, endInclusive: true).ToString());
+            Assert.AreEqual("(−∞, 0)", new Interval<int>(null, 0).ToString());
             Assert.AreEqual("(−∞, +∞)", new Interval<int>().ToString());
             Assert.AreEqual("[−∞, +∞]", new Interval<int>(null, null, true, true).ToString()); // debatable
         }
