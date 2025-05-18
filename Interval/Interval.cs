@@ -1,8 +1,33 @@
 ﻿namespace Asjc.Interval
 {
     /// <inheritdoc cref="IInterval{T}"/>
-    public class Interval<T> : IInterval<T>, IEquatable<Interval<T>> where T : struct, IComparable
+    public class Interval<T> : IInterval<T>, IEquatable<Interval<T>> where T : IComparable
     {
+        private IntervalBoundary<T>? start;
+        private IntervalBoundary<T>? end;
+
+        /// <inheritdoc/>
+        public IntervalBoundary<T>? Start
+        {
+            get => start;
+            init
+            {
+                ValidateBoundaries(value, End);
+                start = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IntervalBoundary<T>? End
+        {
+            get => end;
+            init
+            {
+                ValidateBoundaries(Start, value);
+                end = value;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Interval{T}"/> class with null boundaries.
         /// </summary>
@@ -14,69 +39,55 @@
         /// <param name="start">The start boundary of the interval.</param>
         /// <param name="end">The end boundary of the interval.</param>
         /// <exception cref="ArgumentException">Thrown if <paramref name="start"/> is greater than or equal to <paramref name="end"/>.</exception>
-        public Interval(T? start, T? end)
+        public Interval(IntervalBoundary<T>? start, IntervalBoundary<T>? end)
         {
-            if (start.HasValue)
-            {
-                StartInclusive = true;
-                if (end.HasValue)
-                {
-                    var cmp = start.Value.CompareTo(end.Value);
-                    if (cmp >= 0)
-                        throw new ArgumentException($"{nameof(start)} must be less than {nameof(end)}");
-                }
-            }
-
-            Start = start;
-            End = end;
+            ValidateBoundaries(start, end);
+            this.start = start;
+            this.end = end;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Interval{T}"/> class with the specified boundaries.
+        /// Creates a new instance of the <see cref="Interval{T}"/> class with null boundaries.
+        /// </summary>
+        public static Interval<T> Create() => new();
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="Interval{T}"/> class with the specified boundaries.
         /// </summary>
         /// <param name="start">The start boundary of the interval.</param>
         /// <param name="end">The end boundary of the interval.</param>
-        /// <param name="startInclusive">A value indicating whether the start boundary is included in the interval.</param>
-        /// <param name="endInclusive">A value indicating whether the end boundary is included in the interval.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="start"/> is greater than <paramref name="end"/>.</exception>
-        public Interval(T? start, T? end, bool startInclusive = true, bool endInclusive = false)
+        public static Interval<T> Create(IntervalBoundary<T>? start = null, IntervalBoundary<T>? end = null)
+            => new(start, end);
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="Interval{T}"/> class with the specified boundaries.
+        /// </summary>
+        /// <param name="start">The start value of the interval.</param>
+        /// <param name="end">The end value of the interval.</param>
+        /// <param name="startInclusive">A <see langword="bool"/> indicating whether the start value is included in the interval.</param>
+        /// <param name="endInclusive">A <see langword="bool"/> indicating whether the end value is included in the interval.</param>
+        public static Interval<T> Create(T? start, T? end, bool startInclusive = true, bool endInclusive = false)
+            => new(start is null ? null : new(start, startInclusive),
+                   end is null ? null : new(end, endInclusive));
+
+        private void ValidateBoundaries(IntervalBoundary<T>? start, IntervalBoundary<T>? end)
         {
-            if (start.HasValue && end.HasValue)
+            if (start != null && end != null)
             {
                 var cmp = start.Value.CompareTo(end.Value);
                 if (cmp > 0)
-                    throw new ArgumentException($"{nameof(start)} must be less than or equal to {nameof(end)}");
-                if (cmp == 0 && !(startInclusive && endInclusive))
-                    throw new ArgumentException($"When {nameof(start)} is equal to {nameof(end)}, both {nameof(startInclusive)} and {nameof(endInclusive)} must be true");
+                    throw new ArgumentException("Start value cannot be greater than End value.");
+                if (cmp == 0 && !(start.Inclusive && end.Inclusive))
+                    throw new ArgumentException("Start and End values cannot be equal unless both are inclusive.");
             }
-
-            Start = start;
-            End = end;
-            StartInclusive = startInclusive;
-            EndInclusive = endInclusive;
         }
-
-        /// <inheritdoc/>
-        public T? Start { get; }
-
-        /// <inheritdoc/>
-        public T? End { get; }
-
-        /// <inheritdoc/>
-        public bool StartInclusive { get; }
-
-        /// <inheritdoc/>
-        public bool EndInclusive { get; }
 
         /// <inheritdoc/>
         public bool Equals(Interval<T>? other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Nullable.Equals(Start, other.Start) &&
-                   Nullable.Equals(End, other.End) &&
-                   StartInclusive == other.StartInclusive &&
-                   EndInclusive == other.EndInclusive;
+            return Start == other.Start && End == other.End;
         }
 
         /// <inheritdoc/>
@@ -88,15 +99,15 @@
         }
 
         /// <inheritdoc/>
-        public override int GetHashCode() => (Start, End, StartInclusive, EndInclusive).GetHashCode();
+        public override int GetHashCode() => (Start, End).GetHashCode();
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            string l = Start?.ToString() ?? "−∞";
-            string r = End?.ToString() ?? "+∞";
-            char lb = StartInclusive ? '[' : '(';
-            char rb = EndInclusive ? ']' : ')';
+            var l = Start is null ? "−∞" : Start.Value.ToString();
+            var r = End is null ? "+∞" : End.Value.ToString();
+            char lb = Start != null && Start.Inclusive ? '[' : '(';
+            char rb = End != null && End.Inclusive ? ']' : ')';
             return $"{lb}{l}, {r}{rb}";
         }
 
