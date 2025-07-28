@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>AlexSJC</Authors>
     <Description>Handle intervals easily.</Description>
     <Copyright>Copyright © $(Authors) $([System.DateTime]::Now.Year)</Copyright>
@@ -28,6 +28,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
