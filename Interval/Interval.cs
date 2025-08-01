@@ -70,7 +70,7 @@
             => new(start is null ? null : new(start, startInclusive),
                    end is null ? null : new(end, endInclusive));
 
-        private void ValidateBoundaries(IntervalBoundary<T>? start, IntervalBoundary<T>? end)
+        private static void ValidateBoundaries(IntervalBoundary<T>? start, IntervalBoundary<T>? end)
         {
             if (start != null && end != null)
             {
@@ -99,13 +99,26 @@
         }
 
         /// <inheritdoc/>
-        public override int GetHashCode() => (Start, End).GetHashCode();
+        public override int GetHashCode()
+        {
+#if NET8_0 || NETCOREAPP3_1 || NETSTANDARD2_1
+            return HashCode.Combine(Start, End);
+#else
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + Start?.GetHashCode() ?? 0;
+                hash = hash * 23 + End?.GetHashCode() ?? 0;
+                return hash;
+            }
+#endif
+        }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            var l = Start is null ? "−∞" : Start.Value.ToString();
-            var r = End is null ? "+∞" : End.Value.ToString();
+            var l = Start != null ? Start.Value.ToString() : "−∞";
+            var r = End != null ? End.Value.ToString() : "+∞";
             char lb = Start != null && Start.Inclusive ? '[' : '(';
             char rb = End != null && End.Inclusive ? ']' : ')';
             return $"{lb}{l}, {r}{rb}";
